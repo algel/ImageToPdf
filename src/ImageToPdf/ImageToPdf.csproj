@@ -7,7 +7,10 @@
 		<Nullable>enable</Nullable>
 
 		<AssemblyName>Algel.ImageToPdf</AssemblyName>
-
+		<RepositoryUrl>https://github.com/algel/ImageToPdf.git</RepositoryUrl>
+		<Description>.Net global tool for convert images to PDF document</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Authors>Alexey Pozdnyakov</Authors>
 
 		<Version>1.0.0</Version>
 
