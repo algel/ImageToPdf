@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Console.Help": {
+      "commandName": "Project",
+      "commandLineArgs": "-h",
+      "hotReloadEnabled": false
+    }
+  }
+}

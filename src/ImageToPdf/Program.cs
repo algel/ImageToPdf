@@ -8,12 +8,14 @@ using QuestPDF.Previewer;
 var app = new CommandLineApplication();
 app.HelpOption();
 
-var files = app.Option("-f|--file <File>", "Path to the file", CommandOptionType.MultipleValue);
+var files = app.Option("-f|--file <File>", "Path to the file (required). Allow multiple files.", CommandOptionType.MultipleValue);
+files.IsRequired();
+
 var output = app.Option("-o|--output <FilePath>", "Path to save generated file", CommandOptionType.SingleValue);
 output.DefaultValue = "generated.pdf";
 
-var watermark = app.Option("-w|--watermark <Watermark>", "Watermark text", CommandOptionType.SingleValue);
-var headerText = app.Option("-h|--header <Header>", "Page header text", CommandOptionType.SingleValue);
+var watermark = app.Option("-w|--watermark <Watermark>", "Watermark text (optional)", CommandOptionType.SingleValue);
+var headerText = app.Option("-h|--header <Header>", "Page header text (optional)", CommandOptionType.SingleValue);
 
 var isPreview = app.Option<bool>("--preview", "Show preview without saving", CommandOptionType.NoValue);
 
