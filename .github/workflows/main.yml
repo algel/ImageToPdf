@@ -32,8 +32,5 @@ jobs:
       - name: Build
         run: dotnet build --no-restore src/ImageToPdf.sln
       - name: Publish NuGet
-        uses: brandedoutcast/publish-nuget@v2.5.5
-        with:
-          PROJECT_FILE_PATH: src/ImageToPdf/ImageToPdf.csproj
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-
+        run: dotnet nuget push *.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+        
