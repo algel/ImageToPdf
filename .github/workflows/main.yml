@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore src/ImageToPdf.sln
       - name: Pack
-        run: dotnet pack src/ImageToPdf/ImageToPdf.csproj --no-build --configuration Release -o .
+        run: dotnet pack --no-build -c Release src/ImageToPdf/ImageToPdf.csproj -o .
       - name: Publish NuGet
         run: dotnet nuget push *.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
         
