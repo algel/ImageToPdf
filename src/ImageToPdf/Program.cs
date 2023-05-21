@@ -2,7 +2,10 @@
 using System.CommandLine.Invocation;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using QuestPDF.Previewer;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var filesOption = new Option<IEnumerable<FileInfo>>("--file", "Path to the file (required). Allow multiple files.")
 {
