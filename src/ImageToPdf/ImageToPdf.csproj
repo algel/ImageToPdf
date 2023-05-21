@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
@@ -12,15 +12,15 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>Alexey Pozdnyakov</Authors>
 
-		<Version>1.0.1</Version>
+		<Version>2.0.0</Version>
 
 		<PackAsTool>true</PackAsTool>
 		<ToolCommandName>algel.imageToPdf</ToolCommandName>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.1" />
-		<PackageReference Include="QuestPDF" Version="2022.9.0" />
+		<PackageReference Include="QuestPDF" Version="2023.5.0" />
+		<PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
 	</ItemGroup>
 
 </Project>

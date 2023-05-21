@@ -1,60 +1,71 @@
-﻿using McMaster.Extensions.CommandLineUtils;
-
+﻿using System.CommandLine;
+using System.CommandLine.Invocation;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
 using QuestPDF.Previewer;
 
-var app = new CommandLineApplication();
-app.HelpOption();
-
-var files = app.Option("-f|--file <File>", "Path to the file (required). Allow multiple files.", CommandOptionType.MultipleValue);
-files.IsRequired();
-
-var output = app.Option("-o|--output <FilePath>", "Path to save generated file", CommandOptionType.SingleValue);
-output.DefaultValue = "generated.pdf";
-
-var watermark = app.Option("-w|--watermark <Watermark>", "Watermark text (optional)", CommandOptionType.SingleValue);
-var headerText = app.Option("-h|--header <Header>", "Page header text (optional)", CommandOptionType.SingleValue);
-
-var isPreview = app.Option<bool>("--preview", "Show preview without saving", CommandOptionType.NoValue);
-
-app.OnExecute(() =>
+var filesOption = new Option<IEnumerable<FileInfo>>("--file", "Path to the file (required). Allow multiple files.")
 {
-    var doc = Document.Create(container =>
+    Arity = ArgumentArity.OneOrMore,
+    AllowMultipleArgumentsPerToken = true,
+    IsRequired = true
+};
+filesOption.AddAlias("-f");
+filesOption.LegalFilePathsOnly();
+filesOption.AddValidator(result =>
+{
+    var files = result.GetValueForOption(filesOption);
+    var notExistingFiles = files!.Where(f => !f.Exists).ToArray();
+    if (notExistingFiles.Length>0)
     {
-        foreach (var filePath in files.Values)
-        {
-            container.Page(page =>
-            {
-                page.Size(PageSizes.A4);
-                page.Margin(5);
+        result.ErrorMessage = string.Join(Environment.NewLine,
+            notExistingFiles.Select(f => $"The file '{f.Name}' not found."));
+    }
+});
 
-                if (headerText.HasValue())
-                {
-                    page.Header().AlignMiddle().Text(headerText.Value());
-                }
+var outputOption = new Option<FileInfo>("--output", () => new FileInfo("generated.pdf"), "Path to save generated file")
+{
+    Arity = ArgumentArity.ExactlyOne
+};
+outputOption.AddAlias("-o");
+outputOption.LegalFilePathsOnly();
 
-                page.Content().Layers(layers =>
-                {
-                    layers.PrimaryLayer().Image(filePath, ImageScaling.FitArea);
+var watermarkOption = new Option<string>("--watermark", "Watermark text (optional)")
+{
+    Arity = ArgumentArity.ZeroOrOne,
+    IsRequired = false
+};
+watermarkOption.AddAlias("-w");
 
-                    if(watermark.HasValue())
-                    {
-                        layers.Layer()
-                              .AlignCenter()
-                              .AlignMiddle()
-                              .Text(watermark.Value())
-                              .FontSize(72).Bold().FontColor("#3afafafa");
-                    }
-                });
-            });
-        }
-    });
+var headerTextOption = new Option<string>("--header", "Page header text (optional)")
+{
+    Arity = ArgumentArity.ZeroOrOne,
+    IsRequired = false
+};
 
+var isPreviewOption = new Option<bool>("--preview", () => false, "Show preview without saving");
 
+var rootCommand = new RootCommand("Convert images to single PDF file");
+rootCommand.AddOption(filesOption);
+rootCommand.AddOption(outputOption);
+rootCommand.AddOption(watermarkOption);
+rootCommand.AddOption(headerTextOption);
+rootCommand.AddOption(isPreviewOption);
+rootCommand.SetHandler(Handle);
 
-    if (isPreview.ParsedValue)
+await rootCommand.InvokeAsync(args);
+
+void Handle(InvocationContext context)
+{
+    var inputFiles = context.ParseResult.GetValueForOption(filesOption)!;
+    var outputFile = context.ParseResult.GetValueForOption(outputOption)!;
+    var watermark = context.ParseResult.GetValueForOption(watermarkOption);
+    var headerText = context.ParseResult.GetValueForOption(headerTextOption);
+    var isPreview = context.ParseResult.GetValueForOption(isPreviewOption);
+
+    var doc = GenerateDocument(inputFiles, watermark, headerText);
+
+    if (isPreview)
     {
         try
         {
@@ -66,8 +77,55 @@ app.OnExecute(() =>
     }
     else
     {
-        doc.GeneratePdf(output.Value());
+        doc.GeneratePdf(outputFile.FullName);
     }
-});
+}
 
-return app.Execute(args);
+static Document GenerateDocument(IEnumerable<FileInfo> files, string? watermark, string? headerText)
+{
+    return Document.Create(container =>
+    {
+        foreach (var file in files)
+        {
+            container.Page(page => FillPage(page, file.FullName, headerText, watermark));
+        }
+    });
+}
+
+static void FillPage(PageDescriptor page, string filePath, string? headerText, string? watermark)
+{
+    page.Size(PageSizes.A4);
+    page.Margin(5);
+
+    FillHeader(page, headerText);
+
+    page.Content().Layers(layers =>
+    {
+        layers.PrimaryLayer().Image(filePath).FitArea();
+        FillWatermark(layers, watermark);
+    });
+}
+
+static void FillHeader(PageDescriptor page, string? headerText)
+{
+    if (string.IsNullOrEmpty(headerText))
+    {
+        return;
+    }
+
+    page.Header().AlignMiddle().Text(headerText);
+}
+
+static void FillWatermark(LayersDescriptor layers, string? watermark)
+{
+    if (string.IsNullOrEmpty(watermark))
+    {
+        return;
+    }
+
+    layers.Layer()
+        .AlignCenter()
+        .AlignMiddle()
+        .Text(watermark)
+        .FontSize(72).Bold().FontColor("#3afafafa");
+}
