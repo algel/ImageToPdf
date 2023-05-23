@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -12,11 +12,30 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>Alexey Pozdnyakov</Authors>
 
-		<Version>2.0.1</Version>
+		<Version>2.1.0</Version>
 
 		<PackAsTool>true</PackAsTool>
 		<ToolCommandName>algel.imageToPdf</ToolCommandName>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Add a README.md next to the csproj -->
+		<None Include="../../README.md" Pack="true" PackagePath="" />
+
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="QuestPDF" Version="2023.5.0" />
