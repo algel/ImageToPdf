@@ -1,9 +1,9 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
+using QuestPDF.Companion;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using QuestPDF.Previewer;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -72,7 +72,7 @@ void Handle(InvocationContext context)
     {
         try
         {
-            doc.ShowInPreviewer();
+            doc.ShowInCompanion();
         }
         catch (TaskCanceledException)
         {
